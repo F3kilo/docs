@@ -1,33 +1,131 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: 'API Reference'
+description: 'Complete API documentation for the Drakula platform'
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+## Welcome to the Drakula API
 
-## Welcome
-
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
-
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+The Drakula API provides programmatic access to all platform features including token analytics, trading, wallet management, and social trading capabilities.
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+All API endpoints require authentication using Bearer tokens. Include your API token in the Authorization header:
+
+```bash
+curl -X GET \
+  https://api.drakula.com/api/v1/endpoint \
+  -H "Authorization: Bearer YOUR_API_TOKEN"
+```
+
+## Base URL
+
+```
+https://api.drakula.com/api/v1
+```
+
+## Rate Limits
+
+- **Standard tier:** 100 requests per minute per endpoint
+- **Pro tier:** 500 requests per minute per endpoint
+- **Enterprise tier:** Custom limits available
+
+## Response Format
+
+All API responses are returned in JSON format:
 
 ```json
-"security": [
-  {
-    "bearerAuth": []
+{
+  "data": {...},
+  "metadata": {
+    "timestamp": "2024-01-01T00:00:00Z",
+    "requestId": "req_123456789"
   }
-]
+}
 ```
+
+## Error Handling
+
+Errors are returned with appropriate HTTP status codes and error messages:
+
+```json
+{
+  "error": {
+    "code": "INVALID_TOKEN",
+    "message": "The provided API token is invalid",
+    "details": {}
+  }
+}
+```
+
+## Common Status Codes
+
+| Code | Description |
+|------|-------------|
+| 200 | Success |
+| 400 | Bad Request - Invalid parameters |
+| 401 | Unauthorized - Missing or invalid token |
+| 403 | Forbidden - Insufficient permissions |
+| 404 | Not Found - Resource doesn't exist |
+| 429 | Too Many Requests - Rate limit exceeded |
+| 500 | Internal Server Error |
+
+## API Categories
+
+The API is organized into the following categories:
+
+### Token Analytics
+- Get token snipers and top traders data
+- Analyze token performance and metrics
+
+### Wallet Analytics
+- Track wallet PnL and trading activity
+- Monitor wallet token holdings and swaps
+
+### Trading
+- Execute buy/sell orders
+- Manage active and completed trades
+- Configure trading positions and settings
+
+### Copy Trading
+- Create and manage copy trading intentions
+- Track copy trading performance
+- Manage copy trading wallets
+
+### Auto Buy
+- Set up automated buying strategies
+- Monitor auto buy performance
+- Manage auto buy intentions
+
+### Social Features
+- Telegram channel integration
+- Twitter account management
+- User lists and watchlists
+
+### Scanner
+- Token pair scanning and filtering
+- Market data and analytics
+- Real-time price information
+
+### User Management
+- User profiles and settings
+- Commission and cashback tracking
+- Notification management
+
+## Getting Started
+
+1. **Obtain an API token** from your account settings
+2. **Review the endpoint documentation** for specific requirements
+3. **Test with our sandbox environment** before going live
+4. **Implement proper error handling** in your integration
+
+## Support
+
+For API support, please contact:
+- **Email:** api-support@drakula.com
+- **Documentation:** https://docs.drakula.com
+- **Status Page:** https://status.drakula.com
+
+<Note>
+  Always keep your API tokens secure and never expose them in client-side code.
+  Use environment variables or secure secret management for production deployments.
+</Note>

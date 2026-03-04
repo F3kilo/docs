@@ -1,11 +1,11 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "Drakula API Documentation",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#7C3AED",
+    "light": "#8B5CF6",
+    "dark": "#5B21B6"
   },
   "favicon": "/favicon.svg",
   "navigation": {
@@ -15,18 +15,11 @@
         "groups": [
           {
             "group": "Getting started",
-            "pages": [
-              "index",
-              "quickstart",
-              "development"
-            ]
+            "pages": ["index", "quickstart", "development"]
           },
           {
             "group": "Customization",
-            "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
+            "pages": ["essentials/settings", "essentials/navigation"]
           },
           {
             "group": "Writing content",
@@ -52,17 +45,239 @@
         "groups": [
           {
             "group": "API documentation",
+            "pages": ["api-reference/introduction"]
+          },
+          {
+            "group": "Auto Buy",
             "pages": [
-              "api-reference/introduction"
+              "api-reference/auto-buy/fetchactiveautobuytrades",
+              "api-reference/auto-buy/fetchcompletedautobuytrades",
+              "api-reference/auto-buy/createautobuyintention",
+              "api-reference/auto-buy/updateautobuyintention",
+              "api-reference/auto-buy/updateautobuyintentionstatus",
+              "api-reference/auto-buy/fetchuserautobuyintentions",
+              "api-reference/auto-buy/fetchuserautobuyintentionsstats",
+              "api-reference/auto-buy/fetchactivetradesforautobuyintention",
+              "api-reference/auto-buy/fetchcompletedtradesforautobuyintention",
+              "api-reference/auto-buy/fetchuserautobuyintentiondetailedstats"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Channel",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "api-reference/channel/callerwatchlist",
+              "api-reference/channel/channelfilter",
+              "api-reference/channel/redactedwatchlist",
+              "api-reference/channel/watchlist"
+            ]
+          },
+          {
+            "group": "Config",
+            "pages": [
+              "api-reference/config/config",
+              "api-reference/config/health"
+            ]
+          },
+          {
+            "group": "Copy Trade",
+            "pages": [
+              "api-reference/copy-trade/getcopytradewatchlist",
+              "api-reference/copy-trade/fetchactivecopytradetrades",
+              "api-reference/copy-trade/fetchcompletedcopytradetrades",
+              "api-reference/copy-trade/fetchcopytrades",
+              "api-reference/copy-trade/fetchcopytradeintentionsstats",
+              "api-reference/copy-trade/removecopywallet",
+              "api-reference/copy-trade/getcopytradewalletwatchlist",
+              "api-reference/copy-trade/fetchcopytradewallets",
+              "api-reference/copy-trade/addcopywallet",
+              "api-reference/copy-trade/multiaddcopywallet",
+              "api-reference/copy-trade/fetchactivecopytradeautobuyintention",
+              "api-reference/copy-trade/fetchcompletedtradesforcopytradeintention",
+              "api-reference/copy-trade/fetchusercopytradeintentiondetailedstats",
+              "api-reference/copy-trade/createcopytrade",
+              "api-reference/copy-trade/updatecopytrade",
+              "api-reference/copy-trade/updatecopytradestatus"
+            ]
+          },
+          {
+            "group": "Healthcheck",
+            "pages": [
+              "api-reference/healthcheck/botsenabled",
+              "api-reference/healthcheck/scannerhealth",
+              "api-reference/healthcheck/status"
+            ]
+          },
+          {
+            "group": "Internal",
+            "pages": [
+              "api-reference/internal/migrateuser",
+              "api-reference/internal/getuserslotassets"
+            ]
+          },
+          {
+            "group": "Marketplace",
+            "pages": [
+              "api-reference/marketplace/getmarketplacelist",
+              "api-reference/marketplace/marketplacelists",
+              "api-reference/marketplace/publishlist",
+              "api-reference/marketplace/savelist",
+              "api-reference/marketplace/subscribelist"
+            ]
+          },
+          {
+            "group": "Pair",
+            "pages": [
+              "api-reference/pair/scannercandles",
+              "api-reference/pair/pairandtokennochain",
+              "api-reference/pair/pairandtoken",
+              "api-reference/pair/candles",
+              "api-reference/pair/candlesfrom",
+              "api-reference/pair/info",
+              "api-reference/pair/swaps",
+              "api-reference/pair/extradata",
+              "api-reference/pair/soltokendeposit"
+            ]
+          },
+          {
+            "group": "Scanner",
+            "pages": [
+              "api-reference/scanner/getscannerresult",
+              "api-reference/scanner/getscannerdefaultsearch",
+              "api-reference/scanner/getscannersearch",
+              "api-reference/scanner/getpairstats"
+            ]
+          },
+          {
+            "group": "Swap",
+            "pages": [
+              "api-reference/swap/createbuy",
+              "api-reference/swap/createsell"
+            ]
+          },
+          {
+            "group": "TG Calls",
+            "pages": [
+              "api-reference/tg-calls/getcallswatchlist",
+              "api-reference/tg-calls/getcallsfortoken"
+            ]
+          },
+          {
+            "group": "TG Connection",
+            "pages": [
+              "api-reference/tg-connection/backtesting",
+              "api-reference/tg-connection/gettgcallersfromdb",
+              "api-reference/tg-connection/chatusers",
+              "api-reference/tg-connection/enablechat",
+              "api-reference/tg-connection/chats",
+              "api-reference/tg-connection/chatsslow",
+              "api-reference/tg-connection/enabledchats",
+              "api-reference/tg-connection/filterfromid",
+              "api-reference/tg-connection/updatefilter",
+              "api-reference/tg-connection/updatefiltersenders",
+              "api-reference/tg-connection/updatefiltertopics",
+              "api-reference/tg-connection/completelogin",
+              "api-reference/tg-connection/initiatelogin",
+              "api-reference/tg-connection/loginstatus",
+              "api-reference/tg-connection/logout",
+              "api-reference/tg-connection/enabledusers",
+              "api-reference/tg-connection/getwatchlist"
+            ]
+          },
+          {
+            "group": "Token",
+            "pages": [
+              "api-reference/token/wpegprices",
+              "api-reference/token/gettokenroute",
+              "api-reference/token/tokendetails",
+              "api-reference/token/tokenath",
+              "api-reference/token/bestpair",
+              "api-reference/token/details",
+              "api-reference/token/devmigration",
+              "api-reference/token/holders",
+              "api-reference/token/holderscount",
+              "api-reference/token/tokenliquiditypools"
+            ]
+          },
+          {
+            "group": "Token Analytics",
+            "pages": [
+              "api-reference/token-analytics/snipers",
+              "api-reference/token-analytics/toptraders"
+            ]
+          },
+          {
+            "group": "Trade",
+            "pages": [
+              "api-reference/trade/fetchactivetrades",
+              "api-reference/trade/fetchactivetradebyid",
+              "api-reference/trade/fetchcompletedtrades",
+              "api-reference/trade/fetchcompletedtradebyid",
+              "api-reference/trade/updateordersetting",
+              "api-reference/trade/updateposition",
+              "api-reference/trade/aborttrade",
+              "api-reference/trade/attachpositiontotrade",
+              "api-reference/trade/getfeeestimate",
+              "api-reference/trade/canceltrade"
+            ]
+          },
+          {
+            "group": "Twitter",
+            "pages": [
+              "api-reference/twitter/addtwitteraccount",
+              "api-reference/twitter/updatetwitteraccount",
+              "api-reference/twitter/gettwitteraccounts",
+              "api-reference/twitter/getwatchlist"
+            ]
+          },
+          {
+            "group": "User",
+            "pages": [
+              "api-reference/user/getuseraffiliateid",
+              "api-reference/user/getuserassets",
+              "api-reference/user/getcallerwinrate",
+              "api-reference/user/usercashback",
+              "api-reference/user/usercommissionfees",
+              "api-reference/user/gettransactionnotificationerrors",
+              "api-reference/user/getfeerate",
+              "api-reference/user/getusernotifications",
+              "api-reference/user/acknowledgeusernotifications",
+              "api-reference/user/userprofile",
+              "api-reference/user/reportuser",
+              "api-reference/user/getusersettings",
+              "api-reference/user/updateusersettings",
+              "api-reference/user/getuserslotassets",
+              "api-reference/user/userstats",
+              "api-reference/user/useraffiliatedby",
+              "api-reference/user/createuserfilter",
+              "api-reference/user/updateuserfilter",
+              "api-reference/user/disableuserfilter",
+              "api-reference/user/userfilters",
+              "api-reference/user/getuserfromaffiliateid",
+              "api-reference/user/getuserlistforfilter",
+              "api-reference/user/userprofilebyid",
+              "api-reference/user/setusersusername",
+              "api-reference/user/userwithdraw",
+              "api-reference/user/userwithdrawwallets",
+              "api-reference/user/updateslotstatus",
+              "api-reference/user/migratebots"
+            ]
+          },
+          {
+            "group": "User Lists",
+            "pages": [
+              "api-reference/user-lists/getuserlists",
+              "api-reference/user-lists/getuserlistswatchlist"
+            ]
+          },
+          {
+            "group": "Wallet Analytics",
+            "pages": [
+              "api-reference/wallet-analytics/walletanalyticspnl",
+              "api-reference/wallet-analytics/walletanalyticsswaps",
+              "api-reference/wallet-analytics/wallettokens",
+              "api-reference/wallet-analytics/wallettokenanalyticspnl",
+              "api-reference/wallet-analytics/wallettokenanalyticsswaps",
+              "api-reference/wallet-analytics/wallets"
             ]
           }
         ]
@@ -90,33 +305,37 @@
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "label": "API Support",
+        "href": "mailto:api-support@drakula.com"
+      },
+      {
+        "label": "Status",
+        "href": "https://status.drakula.com"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "label": "API Dashboard",
+      "href": "https://api.drakula.com"
     }
   },
   "contextual": {
     "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://x.com/drakula",
+      "github": "https://github.com/drakula",
+      "discord": "https://discord.gg/drakula"
     }
   }
 }

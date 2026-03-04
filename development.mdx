@@ -1,94 +1,462 @@
 ---
-title: 'Development'
-description: 'Preview changes locally to update your docs'
+title: 'API Development Guide'
+description: 'Best practices and guidelines for developing with the Drakula API'
 ---
 
-<Info>
-  **Prerequisites**:
-  - Node.js version 19 or higher
-  - A docs repository with a `docs.json` file
-</Info>
+# Drakula API Development Guide
 
-Follow these steps to install and run Mintlify on your operating system.
+This guide covers best practices, patterns, and recommendations for building applications with the Drakula API.
+
+## Development Workflow
+
+### 1. Local Development Setup
 
 <Steps>
-<Step title="Install the Mintlify CLI">
+<Step title="Set Up Your Development Environment">
 
 ```bash
-npm i -g mint
+# Create a new project directory
+mkdir drakula-api-app
+cd drakula-api-app
+
+# Initialize a new project (Python example)
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install requests python-dotenv
+
+# Create environment file
+echo "DRAKULA_API_TOKEN=your_test_token_here" > .env
+echo "DRAKULA_API_URL=https://api.drakula.com/api/v1" >> .env
 ```
+
 </Step>
 
-<Step title="Preview locally">
+<Step title="Create a Configuration Module">
 
-Navigate to your docs directory where your `docs.json` file is located, and run the following command:
+```python
+# config.py
+import os
+from dotenv import load_dotenv
 
-```bash
-mint dev
+load_dotenv()
+
+class Config:
+    API_TOKEN = os.getenv("DRAKULA_API_TOKEN")
+    BASE_URL = os.getenv("DRAKULA_API_URL", "https://api.drakula.com/api/v1")
+    TIMEOUT = 30  # seconds
+    MAX_RETRIES = 3
+    
+    @classmethod
+    def validate(cls):
+        if not cls.API_TOKEN:
+            raise ValueError("DRAKULA_API_TOKEN environment variable is required")
 ```
 
-A local preview of your documentation will be available at `http://localhost:3000`.
+</Step>
+
+<Step title="Implement API Client">
+
+```python
+# api_client.py
+import requests
+import time
+from typing import Optional, Dict, Any
+from config import Config
+
+class DrakulaAPIClient:
+    def __init__(self):
+        Config.validate()
+        self.base_url = Config.BASE_URL
+        self.headers = {
+            "Authorization": f"Bearer {Config.API_TOKEN}",
+            "Content-Type": "application/json",
+            "User-Agent": "Drakula-API-Client/1.0.0"
+        }
+        self.session = requests.Session()
+        self.session.headers.update(self.headers)
+    
+    def _make_request(self, method: str, endpoint: str, 
+                     data: Optional[Dict] = None, 
+                     params: Optional[Dict] = None,
+                     retry_count: int = 0) -> Dict[str, Any]:
+        url = f"{self.base_url}/{endpoint}"
+        
+        try:
+            response = self.session.request(
+                method=method,
+                url=url,
+                json=data,
+                params=params,
+                timeout=Config.TIMEOUT
+            )
+            response.raise_for_status()
+            return response.json()
+            
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 429 and retry_count < Config.MAX_RETRIES:
+                # Exponential backoff for rate limiting
+                wait_time = (2 ** retry_count) + 1
+                print(f"Rate limited. Retrying in {wait_time} seconds...")
+                time.sleep(wait_time)
+                return self._make_request(method, endpoint, data, params, retry_count + 1)
+            else:
+                raise
+    
+    def get_user_profile(self):
+        return self._make_request("GET", "user/profile")
+    
+    def get_token_details(self, chain: str, token_address: str):
+        return self._make_request("GET", f"token/{chain}/{token_address}/details")
+    
+    # Add more methods as needed
+```
 
 </Step>
 </Steps>
 
-## Custom ports
+## 2. Testing Strategy
 
-By default, Mintlify uses port 3000. You can customize the port Mintlify runs on by using the `--port` flag. For example, to run Mintlify on port 3333, use this command:
+### Unit Testing
 
-```bash
-mint dev --port 3333
+```python
+# test_api_client.py
+import pytest
+from unittest.mock import Mock, patch
+from api_client import DrakulaAPIClient
+
+class TestDrakulaAPIClient:
+    @pytest.fixture
+    def client(self):
+        return DrakulaAPIClient()
+    
+    @patch('api_client.requests.Session')
+    def test_get_user_profile(self, mock_session):
+        # Mock response
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "data": {
+                "userId": "123",
+                "username": "test_user"
+            }
+        }
+        mock_session.return_value.request.return_value = mock_response
+        
+        client = DrakulaAPIClient()
+        result = client.get_user_profile()
+        
+        assert result["data"]["userId"] == "123"
+        assert result["data"]["username"] == "test_user"
 ```
 
-If you attempt to run Mintlify on a port that's already in use, it will use the next available port:
+### Integration Testing
 
-```md
-Port 3000 is already in use. Trying 3001 instead.
+```python
+# test_integration.py
+import os
+import pytest
+from api_client import DrakulaAPIClient
+
+@pytest.mark.integration
+@pytest.mark.skipif(
+    not os.getenv("DRAKULA_API_TOKEN"),
+    reason="API token required for integration tests"
+)
+class TestIntegration:
+    def test_real_api_call(self):
+        client = DrakulaAPIClient()
+        result = client.get_user_profile()
+        
+        assert "data" in result
+        assert "userId" in result["data"]
+        assert "username" in result["data"]
 ```
 
-## Mintlify versions
+## 3. Error Handling Patterns
 
-Please note that each CLI release is associated with a specific version of Mintlify. If your local preview does not align with the production version, please update the CLI:
+### Comprehensive Error Handler
 
-```bash
-npm mint update
+```python
+# error_handler.py
+from typing import Dict, Any, Optional
+import requests
+
+class APIError(Exception):
+    def __init__(self, message: str, status_code: Optional[int] = None, 
+                 error_data: Optional[Dict] = None):
+        self.message = message
+        self.status_code = status_code
+        self.error_data = error_data
+        super().__init__(self.message)
+
+def handle_api_error(error: requests.exceptions.RequestException) -> None:
+    """Handle API errors with specific messaging."""
+    
+    if isinstance(error, requests.exceptions.HTTPError):
+        status_code = error.response.status_code
+        
+        if status_code == 401:
+            raise APIError(
+                "Authentication failed. Please check your API token.",
+                status_code=401
+            )
+        elif status_code == 403:
+            raise APIError(
+                "Insufficient permissions for this action.",
+                status_code=403
+            )
+        elif status_code == 429:
+            raise APIError(
+                "Rate limit exceeded. Please wait before making more requests.",
+                status_code=429
+            )
+        elif 400 <= status_code < 500:
+            # Try to parse error message from response
+            try:
+                error_data = error.response.json()
+                error_msg = error_data.get("error", {}).get("message", "Client error")
+            except:
+                error_msg = "Client error"
+            raise APIError(error_msg, status_code=status_code, error_data=error_data)
+        elif status_code >= 500:
+            raise APIError(
+                "Server error. Please try again later or contact support.",
+                status_code=status_code
+            )
+    
+    elif isinstance(error, requests.exceptions.Timeout):
+        raise APIError("Request timed out. Please try again.")
+    
+    elif isinstance(error, requests.exceptions.ConnectionError):
+        raise APIError("Network connection error. Please check your internet connection.")
+    
+    else:
+        raise APIError(f"Request failed: {str(error)}")
 ```
 
-## Validating links
+## 4. Performance Optimization
 
-The CLI can assist with validating links in your documentation. To identify any broken links, use the following command:
+### Caching Strategy
 
-```bash
-mint broken-links
+```python
+# cache_manager.py
+import time
+from typing import Dict, Any, Optional
+from functools import lru_cache
+
+class APICache:
+    def __init__(self, ttl: int = 300):  # 5 minutes default TTL
+        self.ttl = ttl
+        self.cache: Dict[str, Dict[str, Any]] = {}
+    
+    def get(self, key: str) -> Optional[Dict[str, Any]]:
+        if key in self.cache:
+            entry = self.cache[key]
+            if time.time() - entry["timestamp"] < self.ttl:
+                return entry["data"]
+            else:
+                del self.cache[key]
+        return None
+    
+    def set(self, key: str, data: Dict[str, Any]) -> None:
+        self.cache[key] = {
+            "data": data,
+            "timestamp": time.time()
+        }
+
+# Usage with API client
+cache = APICache(ttl=60)  # 1 minute cache for market data
+
+@lru_cache(maxsize=128)
+def get_cached_token_details(chain: str, token_address: str):
+    cached = cache.get(f"token:{chain}:{token_address}")
+    if cached:
+        return cached
+    
+    # Make API call
+    client = DrakulaAPIClient()
+    result = client.get_token_details(chain, token_address)
+    cache.set(f"token:{chain}:{token_address}", result)
+    return result
 ```
 
-## Deployment
+### Batch Processing
 
-If the deployment is successful, you should see the following:
+```python
+# batch_processor.py
+from typing import List, Dict, Any
+import asyncio
+import aiohttp
+from config import Config
 
-<Frame>
-  <img src="/images/checks-passed.png" alt="Screenshot of a deployment confirmation message that says All checks have passed." style={{ borderRadius: '0.5rem' }} />
-</Frame>
+class BatchProcessor:
+    def __init__(self, max_concurrent: int = 10):
+        self.max_concurrent = max_concurrent
+    
+    async def fetch_multiple_tokens(self, token_list: List[Dict]) -> List[Dict[str, Any]]:
+        """Fetch multiple tokens concurrently."""
+        semaphore = asyncio.Semaphore(self.max_concurrent)
+        
+        async def fetch_token(session: aiohttp.ClientSession, token: Dict):
+            async with semaphore:
+                url = f"{Config.BASE_URL}/token/{token['chain']}/{token['address']}/details"
+                headers = {"Authorization": f"Bearer {Config.API_TOKEN}"}
+                
+                async with session.get(url, headers=headers) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        return {**token, "data": data}
+                    else:
+                        return {**token, "error": f"HTTP {response.status}"}
+        
+        async with aiohttp.ClientSession() as session:
+            tasks = [fetch_token(session, token) for token in token_list]
+            return await asyncio.gather(*tasks, return_exceptions=True)
+```
 
-## Code formatting
+## 5. Security Best Practices
 
-We suggest using extensions on your IDE to recognize and format MDX. If you're a VSCode user, consider the [MDX VSCode extension](https://marketplace.visualstudio.com/items?itemName=unifiedjs.vscode-mdx) for syntax highlighting, and [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) for code formatting.
+### Secure Token Management
 
-## Troubleshooting
+```python
+# security.py
+import os
+import keyring
+from cryptography.fernet import Fernet
+import base64
 
-<AccordionGroup>
-  <Accordion title='Error: Could not load the "sharp" module using the darwin-arm64 runtime'>
+class SecureTokenManager:
+    def __init__(self, service_name: str = "drakula_api"):
+        self.service_name = service_name
+        self.key = self._get_or_create_key()
+        self.cipher = Fernet(self.key)
+    
+    def _get_or_create_key(self) -> bytes:
+        """Get encryption key from keyring or create new one."""
+        key = keyring.get_password("system", f"{self.service_name}_key")
+        if key:
+            return base64.urlsafe_b64decode(key)
+        else:
+            new_key = Fernet.generate_key()
+            keyring.set_password("system", f"{self.service_name}_key", 
+                               base64.urlsafe_b64encode(new_key).decode())
+            return new_key
+    
+    def store_token(self, token: str, username: str = "default"):
+        """Encrypt and store API token."""
+        encrypted = self.cipher.encrypt(token.encode())
+        keyring.set_password(self.service_name, username, encrypted.decode())
+    
+    def get_token(self, username: str = "default") -> str:
+        """Retrieve and decrypt API token."""
+        encrypted = keyring.get_password(self.service_name, username)
+        if not encrypted:
+            raise ValueError(f"No token found for user: {username}")
+        decrypted = self.cipher.decrypt(encrypted.encode())
+        return decrypted.decode()
+```
 
-    This may be due to an outdated version of node. Try the following:
-    1. Remove the currently-installed version of the CLI: `npm remove -g mint`
-    2. Upgrade to Node v19 or higher.
-    3. Reinstall the CLI: `npm i -g mint`
-  </Accordion>
+## 6. Monitoring and Logging
 
-  <Accordion title="Issue: Encountering an unknown error">
-  
-    Solution: Go to the root of your device and delete the `~/.mintlify` folder. Then run `mint dev` again.
-  </Accordion>
-</AccordionGroup>
+### Structured Logging
 
-Curious about what changed in the latest CLI version? Check out the [CLI changelog](https://www.npmjs.com/package/mintlify?activeTab=versions).
+```python
+# logging_config.py
+import logging
+import json
+from datetime import datetime
+from typing import Dict, Any
+
+class JSONFormatter(logging.Formatter):
+    def format(self, record: logging.LogRecord) -> str:
+        log_data = {
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "level": record.levelname,
+            "message": record.getMessage(),
+            "module": record.module,
+            "function": record.funcName,
+            "line": record.lineno,
+        }
+        
+        if hasattr(record, "api_data"):
+            log_data["api_data"] = record.api_data
+        
+        if record.exc_info:
+            log_data["exception"] = self.formatException(record.exc_info)
+        
+        return json.dumps(log_data)
+
+def setup_logging():
+    logger = logging.getLogger("drakula_api")
+    logger.setLevel(logging.INFO)
+    
+    # Console handler with JSON format
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(JSONFormatter())
+    logger.addHandler(console_handler)
+    
+    # File handler
+    file_handler = logging.FileHandler("api_logs.json")
+    file_handler.setFormatter(JSONFormatter())
+    logger.addHandler(file_handler)
+    
+    return logger
+
+# Usage
+logger = setup_logging()
+
+def log_api_call(endpoint: str, method: str, status_code: int, duration: float):
+    logger.info(
+        "API call completed",
+        extra={
+            "api_data": {
+                "endpoint": endpoint,
+                "method": method,
+                "status_code": status_code,
+                "duration_ms": duration * 1000
+            }
+        }
+    )
+```
+
+## 7. Deployment Checklist
+
+Before deploying your Drakula API integration:
+
+<Checklist>
+  <ChecklistItem checked={false}>
+    Implement proper error handling for all API calls
+  </ChecklistItem>
+  <ChecklistItem checked={false}>
+    Set up rate limiting and exponential backoff
+  </ChecklistItem>
+  <ChecklistItem checked={false}>
+    Secure API token storage (no hardcoded tokens)
+  </ChecklistItem>
+  <ChecklistItem checked={false}>
+    Add comprehensive logging
+  </ChecklistItem>
+  <ChecklistItem checked={false}>
+    Implement caching for frequently accessed data
+  </ChecklistItem>
+  <ChecklistItem checked={false}>
+    Write unit and integration tests
+  </ChecklistItem>
+  <ChecklistItem checked={false}>
+    Set up monitoring and alerting
+  </ChecklistItem>
+  <ChecklistItem checked={false}>
+    Test with sandbox environment first
+  </ChecklistItem>
+</Checklist>
+
+## Next Steps
+
+- Explore [Advanced Trading Patterns](/guides/advanced-trading)
+- Learn about [Webhook Integration](/guides/webhooks)
+- Check out [Official SDKs](https://github.com/drakula)
+- Join our [Developer Community](https://discord.gg/drakula-dev)
+
+<Note>
+  Always test your integration thoroughly in a staging environment before deploying to production. Monitor your API usage and set up alerts for unusual patterns.
+</Note>

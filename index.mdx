@@ -1,97 +1,137 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "Drakula API Documentation"
+description: "Complete API reference for the Drakula trading platform"
 ---
 
-## Setting up
+<Hero
+  title="Drakula API Documentation"
+  subtitle="Build powerful trading applications with our comprehensive API"
+  cta="Get Started"
+  ctaLink="/quickstart"
+  secondaryCta="View API Reference"
+  secondaryCtaLink="/api-reference/introduction"
+/>
 
-Get your documentation site up and running in minutes.
+## What is Drakula?
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
+Drakula is a comprehensive trading platform that provides real-time market data, automated trading, copy trading, and social trading features through a powerful REST API.
 
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
+<Columns cols={3}>
   <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
+    title="Real-time Market Data"
+    icon="chart-line"
+    href="/api-reference/pair"
   >
-    Edit your docs locally and preview them in real time.
+    Access live token prices, liquidity data, and market analytics across multiple chains.
   </Card>
   <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
+    title="Automated Trading"
+    icon="robot"
+    href="/api-reference/trade"
   >
-    Customize the design and colors of your site to match your brand.
-  </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+    Execute trades programmatically with advanced order types and position management.
   </Card>
   <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
+    title="Copy Trading"
+    icon="users"
+    href="/api-reference/copy-trade"
   >
-    Auto-generate API documentation from OpenAPI specifications.
+    Follow successful traders and automate copy trading strategies.
   </Card>
 </Columns>
 
-## Create beautiful pages
+## Quick Links
 
-Everything you need to create world-class documentation.
-
-<Columns cols={2}>
+<Columns cols={3}>
   <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
+    title="API Authentication"
+    icon="key"
+    href="/api-reference/introduction#authentication"
   >
-    Use MDX to style your docs pages.
+    Learn how to authenticate and make your first API request.
   </Card>
   <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
+    title="Trading Endpoints"
+    icon="exchange-alt"
+    href="/api-reference/trade"
   >
-    Add sample code to demonstrate how to use your product.
+    Browse all trading-related endpoints for buying and selling tokens.
   </Card>
   <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
+    title="Market Data"
+    icon="database"
+    href="/api-reference/pair"
   >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
+    Access real-time market data, token prices, and pair information.
   </Card>
 </Columns>
 
-## Need inspiration?
+## API Categories
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+### Trading & Execution
+- **Trade Management**: Execute buy/sell orders, manage positions
+- **Auto Buy**: Set up automated buying strategies
+- **Copy Trading**: Follow and replicate successful traders
+- **Swap Execution**: Direct token swaps with optimal routing
+
+### Market Data & Analytics
+- **Token Analytics**: Snipers, top traders, and token performance
+- **Wallet Analytics**: PnL tracking, swap history, and wallet insights
+- **Scanner**: Real-time token scanning and filtering
+- **Pair Data**: Price feeds, liquidity, and market information
+
+### Social & Community
+- **Telegram Integration**: Connect Telegram channels and calls
+- **Twitter Integration**: Monitor Twitter accounts for token calls
+- **User Lists**: Create and follow curated token lists
+- **Marketplace**: Discover and subscribe to trading strategies
+
+### User Management
+- **User Profiles**: Account information and settings
+- **Commission Tracking**: Monitor earnings and cashback
+- **Notifications**: Manage alerts and notifications
+- **Asset Management**: Track wallet balances and holdings
+
+## Getting Started
+
+<Steps>
+  <Step>
+    <h3>Obtain API Credentials</h3>
+    <p>Generate your API token from the <a href="https://api.drakula.com/dashboard">Drakula Dashboard</a>.</p>
+  </Step>
+  <Step>
+    <h3>Review Documentation</h3>
+    <p>Explore the <a href="/api-reference/introduction">API Introduction</a> for authentication and basics.</p>
+  </Step>
+  <Step>
+    <h3>Make Your First Request</h3>
+    <p>Test the API with our <a href="/quickstart">Quickstart Guide</a>.</p>
+  </Step>
+  <Step>
+    <h3>Build Your Application</h3>
+    <p>Integrate Drakula API into your trading application or bot.</p>
+  </Step>
+</Steps>
+
+## Need Help?
+
+<Columns cols={2}>
+  <Card
+    title="API Support"
+    icon="headset"
+    href="mailto:api-support@drakula.com"
+  >
+    Contact our API support team for technical assistance.
+  </Card>
+  <Card
+    title="Status Page"
+    icon="signal"
+    href="https://status.drakula.com"
+  >
+    Check API status and service availability.
+  </Card>
+</Columns>
+
+<Note>
+  **Important**: Always use environment variables for API keys and implement proper error handling in production applications.
+</Note>
